@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fh.dao.BrandDao">
+
+    <!--条件查询-->
+    <sql id="brandQuery">
+        <where>
+            <if test="brandQuery.brandName!=null and brandQuery.brandName!='' ">
+                and brandName like concat('%',#{brandQuery.brandName},'%')
+            </if>
+            <if test="brandQuery.brandStatus!=null">
+                and brandStatus=#{brandQuery.brandStatus}
+            </if>
+            <if test="brandQuery.startDate!=null">
+                and updateTime &gt;= #{brandQuery.startDate}
+            </if>
+            <if test="brandQuery.endDate!=null">
+                and updateTime &lt;= #{brandQuery.endDate}
+            </if>
+        </where>
+    </sql>
+
+    <!--总条数-->
+    <select id="queryCount" resultType="Long">
+        select count(brandId) from dirSir_brand <include refid="brandQuery"></include>
+    </select>
+
+    <!--分页-->
+    <select id="queryBrandDataTable" resultType="com.fh.bean.Brand">
+        select * from dirSir_brand <include refid="brandQuery"></include> limit #{dataTable.start},#{dataTable.length}
+    </select>
+
+    <!--导出excel-->
+    <select id="queryBrandList" resultType="com.fh.bean.Brand" parameterType="com.fh.bean.Brand">
+        select * from dirSir_brand <include refid="brandQuery"></include>
+    </select>
+
+    <!--根据选中的类型id查询对应的品牌-->
+    <select id="queryShowBrandList" resultType="com.fh.bean.Brand" parameterType="string">
+        select * from dirSir_brand where typeId=#{id}
+    </select>
+
+    <select id="queryBrandListByTypeId" resultType="com.fh.bean.Brand" parameterType="string">
+        select * from dirsir_brand where typeId=(select typeId from dirsir_type where typeId=#{id})
+    </select>
+</mapper>
